@@ -93,20 +93,19 @@ class Nippo
   end
 end
 
+def puts_pr_md(title, events, indent)
+  spaces = '    '
+  print spaces * indent, "* #{title}\n" unless events.empty?
+  events.each do |pull_request|
+    print spaces * (indent + 1), "* #{pull_request.payload.pull_request.title}\n"
+  end
+end
 nippo = Nippo.new(date: Date.today)
+
 puts '* pull_request' unless nippo.pull_requests.all.empty?
-puts '  * merged' unless nippo.pull_requests.merged.empty?
-nippo.pull_requests.merged.each do |pull_request|
-  puts "    * #{pull_request.payload.pull_request.title}"
-end
-puts '  * rejected' unless nippo.pull_requests.unmerged.empty?
-nippo.pull_requests.unmerged.each do |pull_request|
-  puts "    * #{pull_request.payload.pull_request.title}"
-end
-puts '  * opened' unless nippo.pull_requests.opened.empty?
-nippo.pull_requests.opened.each do |pull_request|
-  puts "    * #{pull_request.payload.pull_request.title}"
-end
+puts_pr_md('merged', nippo.pull_requests.merged, 1)
+puts_pr_md('rejected', nippo.pull_requests.unmerged, 1)
+puts_pr_md('opened', nippo.pull_requests.opened, 1)
 
 # client = Octokit::Client.new(login: USER_NAME, access_token: ENV['NIPPO_GITHUB_API_TOKEN'])
 #

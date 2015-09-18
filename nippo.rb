@@ -97,7 +97,7 @@ def puts_pr_md(title, events, indent)
   spaces = '    '
   print spaces * indent, "* #{title}\n" unless events.empty?
   events.each do |pull_request|
-    print spaces * (indent + 1), "* #{pull_request.payload.pull_request.title}\n"
+    print spaces * (indent + 1), "* [#{pull_request.payload.pull_request.title}](#{pull_request.payload.pull_request.html_url})\n"
   end
 end
 nippo = Nippo.new(date: Date.today)

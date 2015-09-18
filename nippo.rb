@@ -16,11 +16,11 @@ class Nippo
   end
 
   def user_events
-    @@user_events ||= client.user_events(USER_NAME)
+    @@user_events ||= client.user_events(USER_NAME, per_page: 100)
   end
 
   def user_public_events
-    @@user_public_events ||= client.user_public_events(USER_NAME)
+    @@user_public_events ||= client.user_public_events(USER_NAME, per_page: 100)
   end
 
   class Events
@@ -83,12 +83,28 @@ class Nippo
       list
     end
 
+    def opened_at(date)
+      merged_ids = merged_at(date).map{|e| e.payload.pull_request.id}
+      opened.select{|event|
+        not merged_ids.include?(event.payload.pull_request.id) \
+          and event.payload.pull_request.created_at.to_date == date
+      }
+    end
+
     def merged
       closed.select{|event| event.payload.pull_request.merged}
     end
 
+    def merged_at(date)
+      merged.select{|event| event.payload.pull_request.merged_at.to_date == date}
+    end
+
     def unmerged
       closed.select{|event| !event.payload.pull_request.merged}
+    end
+
+    def unmerged_at(date)
+      unmerged.select{|event| event.payload.pull_request.closed_at.to_date == date}
     end
   end
 end
@@ -103,9 +119,9 @@ end
 nippo = Nippo.new(date: Date.today)
 
 puts '* pull_request' unless nippo.pull_requests.all.empty?
-puts_pr_md('merged', nippo.pull_requests.merged, 1)
-puts_pr_md('rejected', nippo.pull_requests.unmerged, 1)
-puts_pr_md('opened', nippo.pull_requests.opened, 1)
+puts_pr_md('merged', nippo.pull_requests.merged_at(Date.today), 1)
+puts_pr_md('rejected', nippo.pull_requests.unmerged_at(Date.today), 1)
+puts_pr_md('opened', nippo.pull_requests.opened_at(Date.today), 1)
 
 # client = Octokit::Client.new(login: USER_NAME, access_token: ENV['NIPPO_GITHUB_API_TOKEN'])
 #

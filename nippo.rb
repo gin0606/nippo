@@ -4,11 +4,15 @@ USER_NAME = ENV['NIPPO_GITHUB_USER_NAME']
 
 class Nippo
   def pull_requests
-    @pull_requests ||= PullRequests.new(user_events + user_public_events)
+    @pull_requests ||= PullRequests.new(all_user_events)
   end
 
   def client
     @@client = Octokit::Client.new(login: USER_NAME, access_token: ENV['NIPPO_GITHUB_API_TOKEN'])
+  end
+
+  def all_user_events
+    @all_user_events ||= (user_events + user_public_events).uniq{|e| e.id}
   end
 
   def user_events

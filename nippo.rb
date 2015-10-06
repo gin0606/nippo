@@ -83,12 +83,13 @@ class Nippo
       list
     end
 
+    def opened
+      exclude_ids = (merged + unmerged).map{|e| e.payload.pull_request.id}
+      super.select{|event| not exclude_ids.include?(event.payload.pull_request.id) }
+    end
+
     def opened_at(date)
-      merged_ids = merged_at(date).map{|e| e.payload.pull_request.id}
-      opened.select{|event|
-        not merged_ids.include?(event.payload.pull_request.id) \
-          and event.payload.pull_request.created_at.to_date == date
-      }
+      opened.select{|event| event.payload.pull_request.created_at.to_date == date }
     end
 
     def merged

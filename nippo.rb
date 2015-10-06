@@ -3,10 +3,6 @@ require 'octokit'
 USER_NAME = ENV['NIPPO_GITHUB_USER_NAME']
 
 class Nippo
-  def initialize(date: nil)
-    # TODO: 渡されたdateでselectする
-  end
-
   def pull_requests
     @pull_requests ||= PullRequests.new(user_events + user_public_events)
   end
@@ -117,7 +113,7 @@ def puts_pr_md(title, events, indent)
     print spaces * (indent + 1), "* [#{pull_request.payload.pull_request.title}](#{pull_request.payload.pull_request.html_url})\n"
   end
 end
-nippo = Nippo.new(date: Date.today)
+nippo = Nippo.new
 
 puts '* pull_request' unless nippo.pull_requests.all.empty?
 puts_pr_md('merged', nippo.pull_requests.merged_at(Date.today), 1)
